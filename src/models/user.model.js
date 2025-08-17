@@ -52,7 +52,7 @@ const userSchema = new Schema(
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next(); // hum idhr negative condition check rkh rhe h ki agr password modified nhi hua h to ap yha s return krdo next() ko.
 
-  this.password = bcrypt.hash(this.password, 10); // or agr modified h to use change kro or fr next().
+  this.password = await bcrypt.hash(this.password, 10); // or agr modified h to use change kro or fr next().
   next();
 });
 
