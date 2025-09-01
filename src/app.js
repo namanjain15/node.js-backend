@@ -23,6 +23,8 @@ app.use(cookieParser());
 import userRouter from "./routes/user.routes.js";
 
 // routes declaration...
+// Jse hi /api/v1/users hua wse hi control pass ho gya user.routes ke pas fir uske bd jitne method apply hoge whi se hi hoge
+// EX: http://localhost:8000/api/v1/users/register
 
 app.use("/api/v1/users", userRouter);
 

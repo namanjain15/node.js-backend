@@ -9,27 +9,38 @@ cloudinary.config({
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
-
   try {
     if (!localFilePath) return "Path does not found...";
+
     // upload the file on cloudinary.
+
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
-    // File has been uploaded successfully.
-    console.log("File is uploaded on Cloudinary", response.url);
-    return response;
 
+    // File has been uploaded successfully.
+
+    // console.log("File is uploaded on Cloudinary", response.url);
+
+    fs.unlinkSync(localFilePath);
+    return response;
   } catch (error) {
     fs.unlinkSync(localFilePath); // It removes the locally saved temporary files as the upload operation got failed.
     return null;
   }
 };
 
+// if (fs.existsSync(localFilePath)) {
+//   fs.unlinkSync(localFilePath);
+// }
+
+//   } catch (error) {
+//     console.error("Cloudinary upload error:", error);
+//     return null;
+//   }
+// };
+
 export { uploadOnCloudinary };
-
-
-
 
 // cloudinary.v2.uploader.upload(
 //   "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
