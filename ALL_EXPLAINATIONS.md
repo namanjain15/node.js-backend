@@ -51,3 +51,15 @@ Instead, you use the Refresh Token to ask the server:
 
 The server checks the Refresh Token → if valid, it gives you a new Access Token.
 
+
+
+**-->Use of $set in MongoDB**
+
+The $set operator is used to update specific fields in a document without overwriting the whole document.
+
+What $set does:
+
+$set means “change only this field” in the database.
+
+It updates just the part you mention, without touching the rest.
+
