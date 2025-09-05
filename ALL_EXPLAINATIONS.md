@@ -63,3 +63,19 @@ $set means “change only this field” in the database.
 
 It updates just the part you mention, without touching the rest.
 
+
+
+**-->What $lookup does**
+
+$lookup is used to join two collections (like SQL joins).
+
+It lets you pull related data from another collection into your query result.
+$lookup = join in MongoDB.
+
+
+
+**-->What $match does**
+
+$match is like a filter (similar to WHERE in SQL).
+
+It only passes documents that satisfy the condition to the next stage in the pipeline.

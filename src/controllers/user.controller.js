@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { jwt } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 
 const generateAccessAndRefreshTokens = async(userId) => {
@@ -287,7 +287,7 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
     throw new ApiError(400, "All fields are required")
   }
 
-  const user = User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
@@ -368,6 +368,88 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 
 })
 
+const getUserChannelprofile = asyncHandler(async(req, res) => {
+  const { username } = req.params      // params = parameters
+
+  if (!username?.trim()) {
+    throw new ApiError(400, "username is missing here")
+  }
+
+  // User.find({username})           // instead of this we r using aggregation pipelines 
+
+  const channel = await User.aggregate([
+
+    // sbse phle humne user ko match kia 
+    // fir uske subscribers kitne h wo dkha (channel k through)
+    // fir humne count kia humne kitno ko subscribe kia hua h (subscriber k through)
+    // fir humne kch or fields add kri 
+
+    {
+      $match: {
+        username: username?.toLowerCase()
+      }
+    },
+    {
+      $lookup: {                   // $lookup is used to join two collections (like SQL joins).
+        from: "subscriptions",     // model m sari cheeze lower case m convert ho jti h or plural ho jti h 
+        localField: "_id",
+        foreignField: "channel",
+        as : "subscribers"
+      }
+    },
+    {
+      $lookup: {
+        from: "subscriptions",     // model m sari cheeze lower case m convert ho jti h or plural ho jti h 
+        localField: "_id",
+        foreignField: "subscriber",
+        as : "subscribedTo"
+      }
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers"         // sare documents ko count krne k lie $size user krte h 
+        },
+        channelsSubscribedToCount: {
+          $size: "$subscribedTo"
+        },
+        isSubscribed: {
+          $cond: {
+            if: {
+              $in: [req.user?._id, "$subscribers.subscriber"]
+            },
+            then :true,
+            else: false
+          }
+        }
+      }
+    },
+    {
+      $project: {          // yeh selected cheezo ko project krta h 
+        fullname: 1,
+        username: 1,
+        email: 1,
+        subscribersCount: 1,
+        channelsSubscribedToCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1
+      }
+    }
+  ])
+
+  if (!channel?.length) {
+    throw new ApiError(400, "Channel does not exist")
+  }
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200, channel[0], "User channel fetched successfully...")
+  )
+
+})
+
 export { 
   registerUser, 
   loginUser, 
@@ -378,5 +460,6 @@ export {
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
-  updateUserCoverImage
+  updateUserCoverImage,
+  getUserChannelprofile
 };
