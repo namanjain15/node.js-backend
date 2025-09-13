@@ -69,6 +69,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // console.log(req.files);
   
   const avatarLocalPath = req.files?.avatar[0]?.path; // in paths ki destination apn ne multer.middleware m rkhi hui h
+  
   // const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
 
@@ -182,6 +183,11 @@ const logoutUser = asyncHandler(async (req, res) => {
         refreshToken: undefined
       }
     },
+    // {
+    //   $unset: {
+    //     refreshToken: 1              // this removes the field from the document 
+    //   }
+    // },
     {
       new: true
     }
@@ -253,6 +259,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const changeCurrentpassword = asyncHandler(async (req, res) => {
   const {oldPassword, newPassword} = req.body
 
+  console.log(req.body);
+
   const user = await User.findById(req.user?._id)       // agr user h to use id s find kro
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
 
@@ -280,6 +288,8 @@ const getCurrentUser = asyncHandler(async(req, res) => {
   .status(200)
   .json(200, req.user, "Current user fetched successfully...")
 })
+
+// console.log(getCurrentUser)
 
 const updateAccountDetails = asyncHandler(async(req, res) => {
   const {fullName, email} = req.body
@@ -483,8 +493,8 @@ const getWatchHistory = asyncHandler(async(req, res) => {
             }
           },
           {
-            $addFields: {
-              owner: {
+            $addFields: {            // Sara data owner ki feild m aa chuka h but in the form of array jisme se hume alg s first value nikalni pdti h to hume wo cheez shi krna h 
+              owner: {               // field ko add bhi kr skte h but apn use owner hi bol dte h jisse existing field hi override ho jae
                 $first: "$owner"
               }
             }
